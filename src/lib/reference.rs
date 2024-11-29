@@ -2,6 +2,7 @@
 //!
 //! Borrowed from https://github.com/varlociraptor/varlociraptor/blob/master/src/reference.rs
 use std::fs;
+use std::path::Path;
 use std::str;
 use std::sync::Arc;
 use std::sync::{Mutex, RwLock};
@@ -23,6 +24,14 @@ impl Buffer {
             reader: RwLock::new(fasta),
             sequences: Mutex::new(LruCache::with_capacity(capacity)),
         }
+    }
+
+    /// Create a new Reference Buffer from a file path. Capacity is the number of reference sequences to hold in the cache at one time.
+    pub fn from_file<P: AsRef<Path> + std::fmt::Debug>(
+        path: &P,
+        capacity: usize,
+    ) -> anyhow::Result<Self> {
+        Ok(Self::new(fasta::IndexedReader::from_file(path)?, capacity))
     }
 
     /// Get a Vec of all the sequences in the Reference
